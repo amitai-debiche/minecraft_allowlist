@@ -1,0 +1,127 @@
+@font-face {
+    font-family: 'Minecraftia';
+    src: url('fonts/Minecraftia-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-size: normal;
+    ascent-override: 200%;
+    descent-override: 2%;
+}
+body {
+    font-family: 'Minecraftia', sans-serif;
+    overflow: hidden;
+}
+.background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('images/mc-background.png'); /* Replace with your background image */
+    background-size: cover;
+    background-position: center;
+    filter: blur(5px); /* Adjust blur level as needed */
+    -webkit-filter: blur(5px); /* For Safari */
+    z-index: -1; /* Make sure the background stays behind the form */
+    transform: scale(1.1);
+}
+form {
+    display: inline-block;
+    width: 400px;
+    padding: 1em;
+    /* border: 1px solid #ccc; 
+    box-shadow: 0 0 2px #ccc; */
+    background: rgba(0,0,0,0.7); 
+    border-radius: 1em; 
+
+}
+
+.centered {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20%;
+    text-align: center;
+}
+
+h2 {
+    margin-bottom: 0;
+}
+
+h4 {
+    margin-top: -12px;
+    
+}
+
+h2, h4 {
+    color: #a27f91;
+}
+
+.input_container {
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+}
+
+.username {
+    align-self: center;
+}
+
+.error_message {
+    color: red;
+    font-size: .875em;
+    align-self: self-start;
+    padding-left: 1.2em;
+}
+
+input, 
+textarea {
+    font: .8em Minecraftia;
+
+    width: 350px;   
+    box-sizing: border-box;
+    border-radius: 5px;
+    padding: 5px;
+
+    border: 1px solid #999;
+    background-color: #f2f2f2;
+}
+
+input.invalid {
+    border: 1px solid red;
+}
+
+input.valid {
+    border: 1.5px solid #55FF55;
+}
+
+input:focus,
+textarea:focus {
+    outline: 1.5px solid #5555FF;
+    border-color: #000;
+}
+
+
+textarea {
+    vertical-align: top;
+    resize: none;
+
+    height: 7em;
+}
+
+
+button {
+    margin-top: 30px;
+    margin-bottom: 10px;
+    width: 100px;
+    padding-top: 2px;
+    font-size: .8em;
+    text-align: center;
+    height: 25px;
+    background-color: #ffff;
+    border-radius: .5em;
+    font-family: Minecraftia;
+
+}
+button:disabled {
+    background-color: darkgray;
+}
