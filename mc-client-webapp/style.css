@@ -111,11 +111,12 @@ textarea {
 
 button {
     margin-top: 30px;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     width: 100px;
     padding-top: 2px;
     font-size: .8em;
     text-align: center;
+    line-height: 1.5em;
     height: 25px;
     background-color: #ffff;
     border-radius: .5em;
