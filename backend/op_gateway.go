@@ -51,6 +51,7 @@ func main() {
     r.SetTrustedProxies(nil)
     r.POST("/newUserRequest", handleNewUserRequest)
     r.POST("/checkUsername", handleUserValidation)
+    r.POST("/approveUsername", handleUserApproval)
     //uri := fmt.Sprintf("%s:%s",address, port)
     r.Run("localhost:8080")
 
@@ -101,6 +102,17 @@ func handleNewUserRequest(c *gin.Context) {
     // Poke discord bot 
 
     c.JSON(http.StatusOK, gin.H{"message": "User request submitted - awaiting approval"})
+}
+
+func handleUserApproval(c *gin.Context) {
+    // Handle
+    
+
+    //CALL SERVER AGENT
+
+
+
+
 }
 
 func handleUserValidation(c *gin.Context) {
