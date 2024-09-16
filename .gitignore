@@ -1,0 +1,5 @@
+# Ignore actual .env file
+.env
+
+# Allow the .env.template file
+!.env.template
