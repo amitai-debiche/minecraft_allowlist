@@ -1,5 +1,8 @@
-# Ignore actual .env file
-.env
-
 # Allow the .env.template file
 !.env.template
+
+# Ignore actual .env file
+venv/
+bot-env/
+.env
+
