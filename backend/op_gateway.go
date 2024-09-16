@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	_ "net/http"
@@ -26,6 +28,10 @@ type UserForm struct {
 
 type UserJson struct {
     Username string `json:"username"`
+}
+type UserApproval struct {
+    Username string `json:"username"`
+    Status bool `json:"status"`
 }
 
 var db *sql.DB
@@ -105,14 +111,51 @@ func handleNewUserRequest(c *gin.Context) {
 }
 
 func handleUserApproval(c *gin.Context) {
-    // Handle
+    var userStatus UserApproval;
+
+    if err := c.BindJSON(&userStatus); err != nil {
+        return
+    }
     
+    //check if user exists in DB
+    var existingUsername string
+    row := db.QueryRow("SELECT username FROM users WHERE username = $1", userStatus.Username)
+    switch err := row.Scan(&existingUsername); err {
+    case nil:
+        break
+    default:
+        fmt.Println(err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Database Error"})
+        return
+    }
 
-    //CALL SERVER AGENT
 
+    approvalDate := time.Now().UTC()
+    approved := userStatus.Status
+    sqlStatement := `
+    UPDATE users
+    SET approval_date = $2, approved = $3
+    WHERE username = $1;`
 
+    _, err := db.Exec(sqlStatement, userStatus.Username, approvalDate, approved)
+    if err != nil {
+        panic(err)
+    }
 
-
+    if approved {
+        if err := sendAllowlistRequest(userStatus.Username); err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Error adding user to allowlist"})
+            return
+        }else {
+            msg := fmt.Sprintf("User %s has been added to the allowlist", userStatus.Username)
+            c.JSON(http.StatusOK, gin.H{"message": msg});
+            return
+        }
+    }else {
+        msg := fmt.Sprintf("User %s has not been added to the allowlist", userStatus.Username)
+        c.JSON(http.StatusCreated, gin.H{"message": msg})
+        return
+    }
 }
 
 func handleUserValidation(c *gin.Context) {
@@ -150,4 +193,38 @@ func checkValidUser(username string) (bool, error) {
         return true, nil
     }
     return false, nil
+}
+
+
+
+
+func sendAllowlistRequest(username string) error{
+    url := "http://localhost:8080/addUser"
+
+    payload := map[string]string{"username": username}
+    
+    jsonData, err := json.Marshal(payload)
+    if err != nil {
+        return fmt.Errorf("error marshaling JSON: %w", err)
+    }
+
+    req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+    if err != nil {
+        return fmt.Errorf("error creating request: %w", err)
+    }
+
+    req.Header.Set("Content-Type", "application/json")
+
+    client := http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        return fmt.Errorf("error making request: %w", err)
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode != http.StatusOK {
+        return fmt.Errorf("received non-OK status: %s", resp.Status)
+    }
+        
+    return nil
 }
