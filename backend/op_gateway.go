@@ -32,10 +32,9 @@ var db *sql.DB
 func apiKeyMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		apiKey := c.GetHeader("Authorization")
+        expectedApiKEY := "Bearer " + os.Getenv("API_KEY")
 
-		validAPIKey := os.Getenv("API_KEY")
-
-        if apiKey != validAPIKey {
+        if apiKey != expectedApiKEY {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 			c.Abort()
 			return
