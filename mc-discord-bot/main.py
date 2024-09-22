@@ -69,6 +69,9 @@ def send_message():
         return jsonify({"error": "Unauthorized"}), 403
 
     data = request.json
+    if data is None:
+        return jsonify({"error": "Invalid or missing JSON"}), 400
+
     username = data.get('username')
     message = data.get('message')
 
