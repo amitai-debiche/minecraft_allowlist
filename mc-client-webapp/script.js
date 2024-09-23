@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const submitButton = document.getElementById("submitBtn");
     const usernameError = document.getElementById("usernameError");
     
-    usernameInput.addEventListener("input", function() {
+    usernameInput.addEventListener("blur", function() {
         const username = usernameInput.value.trim();
 
         if (username.length <= 0) {
@@ -21,27 +21,62 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
     function checkUsernameValidity(username) {  
-       // fetch(`https://api.mojang.com/users/profiles/minecraft/${username}`)
-        //    .then(response => {
-                //if (response.status === 204) {
-                if (username === "rooney1324") {
-                    submitButton.disabled = false;
-                    usernameInput.classList.remove('invalid');
-                    usernameInput.classList.add('valid');
-                    usernameError.textContent = "";
-
-                } else {
-                    submitButton.disabled = true;
-                    usernameInput.classList.remove('valid');
-                    usernameInput.classList.add('invalid');
-                    usernameError.textContent = "That username does not exist!";
-                }
-
-        //});
+       fetch("http://localhost:8080/checkUsername", {
+           method: 'POST',
+           headers: {
+               'Authorization': `Bearer test`,
+               'Content-Type': 'application/json',
+           },
+           body: JSON.stringify({username: username})
+       })
+        .then(response => {
+            if (response.ok) {
+                submitButton.disabled = false;
+                usernameInput.classList.remove('invalid');
+                usernameInput.classList.add('valid');
+                usernameError.textContent = "";
+            } 
+            else {
+                submitButton.disabled = true;
+                usernameInput.classList.remove('valid');
+                usernameInput.classList.add('invalid');
+                usernameError.textContent = "That username does not exist!";
+            }
+        })
+        .catch(error => {
+                console.error('Error:', error);
+                usernameError.textContent = "An error occured";
+        })
     }
+
     document.getElementById("form").addEventListener("submit", function(event) {
-        if (submitButton.disabled) {
-            event.preventDefault();
+        event.preventDefault();
+
+        if (!submitButton.disabled) {
+            const formData = new FormData(document.getElementById("form"));
+            console.log(formData)
+
+
+            fetch("http://localhost:8080/newUserRequest", {
+                method: 'POST',
+                headers: {
+                   'Authorization': `Bearer test`,
+                   'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(formData).toString()
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Your request was succesfully submitted!");
+                        console.log(response.json())
+                    } else {
+                        usernameError.textContent = data.error || "Submission failed.";
+                    }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                usernameError.textContent = "An error occured during submission, Try again later!";
+            })
         }
     });
 });

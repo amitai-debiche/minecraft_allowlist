@@ -6,8 +6,6 @@ from discord import Intents, Client, Message
 from discord.ext import commands
 import requests
 import asyncio
-
-from requests.models import auth
 from flask import Flask, request, jsonify
 
 load_dotenv()
@@ -16,16 +14,14 @@ API_KEY: Final[str] = os.getenv('API_KEY', '')
 TRUSTED_ROLE_NAME: str = os.getenv("TRUSTED_ROLE_NAME", 'trusted') # defualt role to trusted
 BACKEND_URL = os.getenv("BACKEND_URL", 'localhost')
 
-if TOKEN is '':
+if TOKEN == '':
     raise ValueError("DISCORD_TOKEN env variable has not been set")
-if API_KEY is '':
+if API_KEY == '':
     raise ValueError("API_KEY env variable has not been set")
 
 
 intents: Intents = Intents.default()
 intents.message_content = True
-intents.reactions = True
-intents.members = True
 channel = None
 bot_messages = {}
 bot = commands.Bot(command_prefix='$', intents=intents)
@@ -37,6 +33,7 @@ app = Flask(__name__)
 async def set_channel(ctx):
     global channel
     channel = ctx.channel
+    print(channel)
     await ctx.send("SETUP: Channel has been set for receiving bot authorization messages")
 
 async def send_message_to_channel(username: str, message: str):
@@ -63,7 +60,7 @@ async def send_message_to_channel(username: str, message: str):
 
 @app.route('/send_message', methods=['POST'])
 def send_message():
-
+    print("send message called")
     auth_header = request.headers.get('Authorization')
     if auth_header is None or auth_header != f'Bearer {API_KEY}':
         return jsonify({"error": "Unauthorized"}), 403
@@ -82,8 +79,10 @@ def send_message():
     success, error = asyncio.run_coroutine_threadsafe(
             send_message_to_channel(username, message), bot.loop).result()
     if success:
+        print("success")
         return jsonify({"message": "Message sent successfully"}), 200
     else:
+        print(error)
         return jsonify({"error": error}), 500
 
 
@@ -103,8 +102,8 @@ async def on_reaction_add(reaction, user):
 
         try:
             response = requests.post(
-                "{BACKEND_URL}/approveUsername",
-                json={"username": username},
+                f"{BACKEND_URL}/approveUsername",
+                json={"username": username, "status": True},
                 headers={'Authorization': f'Bearer {API_KEY}'}
             )
 

@@ -7,16 +7,18 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+    "github.com/gin-contrib/cors"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
 type UserForm struct {
-	Username string `form:"username" binding:"required"`
-	Message  string `form:"msg"`
+	Username string `form:"user_username" binding:"required"`
+	Message  string `form:"user_message"`
 }
 
 type UserJson struct {
@@ -48,8 +50,10 @@ func handleNewUserRequest(c *gin.Context) {
 	var newUser UserForm
 
 	if err := c.ShouldBind(&newUser); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error reading form"})
 		return
 	}
+
 	// Revalidate Username
 	if res, err := checkValidUser(newUser.Username); res != true || err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to validate user"})
@@ -85,11 +89,11 @@ func handleNewUserRequest(c *gin.Context) {
 		fmt.Println(err)
 		panic(err)
 	}
+    fmt.Printf("added to sql\n")
 
 	// Poke discord bot
-
 	apiKey := os.Getenv("API_KEY")
-    url := "localhost/send_message"
+    url := "http://127.0.0.1:5000/send_message"
 
     data := map[string]string{
         "username" : newUser.Username,
@@ -157,7 +161,7 @@ func handleUserApproval(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-
+    fmt.Printf("approved: %t", approved)
 	if approved {
 		if err := sendAllowlistRequest(userStatus.Username); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error adding user to allowlist"})
@@ -169,7 +173,7 @@ func handleUserApproval(c *gin.Context) {
 		}
 	} else {
 		msg := fmt.Sprintf("User %s has not been added to the allowlist", userStatus.Username)
-		c.JSON(http.StatusCreated, gin.H{"message": msg})
+		c.JSON(http.StatusNotImplemented, gin.H{"message": msg})
 		return
 	}
 }
@@ -212,7 +216,7 @@ func checkValidUser(username string) (bool, error) {
 }
 
 func sendAllowlistRequest(username string) error {
-	url := "http://localhost:8080/addUser"
+	url := "http://localhost:1025/addUser"
 
 	payload := map[string]string{"username": username}
 
@@ -235,7 +239,7 @@ func sendAllowlistRequest(username string) error {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusOK  && resp.StatusCode != http.StatusCreated {
 		return fmt.Errorf("received non-OK status: %s", resp.Status)
 	}
 
@@ -253,6 +257,7 @@ func main() {
 	user := os.Getenv("DB_USER")
 	password := os.Getenv("DB_PASSWORD")
 	dbname := os.Getenv("DB_NAME")
+    release_mode := os.Getenv("RELEASE_MODE")
 
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
@@ -261,6 +266,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	defer db.Close()
 
 	err = db.Ping()
@@ -269,8 +275,21 @@ func main() {
 		panic(err)
 	}
 
+    if strings.ToLower(release_mode) == "true" {
+        gin.SetMode(gin.ReleaseMode)
+    }
+
 	r := gin.Default()
 	r.SetTrustedProxies(nil)
+    r.Use(cors.New(cors.Config{
+        AllowOrigins: []string{"*"},
+        AllowMethods: []string{"POST"},
+        AllowHeaders: []string{"Origin", "Authorization", "Content-Type"},
+        ExposeHeaders: []string{"Content-Length"}, 
+        AllowCredentials: true,
+        MaxAge: 12 * time.Hour,
+    }))
+
 	r.POST("/newUserRequest", apiKeyMiddleware(), handleNewUserRequest)
 	r.POST("/checkUsername", apiKeyMiddleware(), handleUserValidation)
 	r.POST("/approveUsername", apiKeyMiddleware(), handleUserApproval)

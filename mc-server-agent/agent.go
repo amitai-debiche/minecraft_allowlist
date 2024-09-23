@@ -54,14 +54,14 @@ func addUser(c *gin.Context){
         return 
     }
     if err := runTmuxCommand(newPlayer.Username); err != nil {
-        c.IndentedJSON(http.StatusInternalServerError, gin.H{
+        c.JSON(http.StatusInternalServerError, gin.H{
             "error": err.Error(),
         })
         return
     }
 
     message := fmt.Sprintf("Player: %s succesfully added to allowlist", newPlayer.Username)
-    c.IndentedJSON(http.StatusCreated, gin.H{
+    c.JSON(http.StatusCreated, gin.H{
         "message": message,
     })
 }
@@ -70,6 +70,7 @@ func runTmuxCommand(uname string) error {
 
     command := fmt.Sprintf("/whitelist add %s", uname)
     cmd := exec.Command("tmux", "send-keys", "-t", session_name, command, "C-m")
+    fmt.Printf("Executing command: %s\n", cmd.String())
 
     if err := cmd.Run(); err != nil {
         return fmt.Errorf("failed to run tmux command: %v", err)
