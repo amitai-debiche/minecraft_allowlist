@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
     function checkUsernameValidity(username) {  
-       fetch("http://localhost:8080/checkUsername", {
+       fetch("http://localhost:5002/checkUsername", {
            method: 'POST',
            headers: {
                'Authorization': `Bearer test`,
@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function() {
             console.log(formData)
 
 
-            fetch("http://localhost:8080/newUserRequest", {
+            fetch("http://localhost:5002/newUserRequest", {
                 method: 'POST',
                 headers: {
                    'Authorization': `Bearer test`,

@@ -2,11 +2,12 @@ services:
   backend:
     build: 
       context: .
-      dockerfile: backend.dockerfile
+      dockerfile: backend.Dockerfile
     ports:
       - "5002:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - DB_HOST=db
       - DB_PORT=${DB_PORT}
@@ -22,14 +23,20 @@ services:
     image: postgres
     restart: always
     environment:
-      POSTGRES_USER=${DB_USER}
-      POSTGRES_PASSWORD=${DB_PASSWORD}
-      POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
     volumes:
       - db_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh  
     env_file:
       - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s 
+      timeout: 5s    
+      retries: 5      
+      start_period: 30s  
 
 volumes:
-  db_data
+  db_data:

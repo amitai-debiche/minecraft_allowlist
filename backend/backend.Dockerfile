@@ -10,11 +10,11 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o /usr/src/app/op_gateway op_gateway.go
 
-FROM scratch
+FROM alpine:latest
 
 WORKDIR /root/
 
-COPY --from=builder /app/op_gateway .
+COPY --from=builder /usr/src/app/op_gateway .
 
 EXPOSE 8080
 

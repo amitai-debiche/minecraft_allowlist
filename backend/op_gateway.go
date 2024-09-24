@@ -288,6 +288,6 @@ func main() {
 	r.POST("/newUserRequest", apiKeyMiddleware(), handleNewUserRequest)
 	r.POST("/checkUsername", apiKeyMiddleware(), handleUserValidation)
 	r.POST("/approveUsername", apiKeyMiddleware(), handleUserApproval)
-	r.Run("localhost:8080")
+	r.Run("0.0.0.0:8080")
 
 }
