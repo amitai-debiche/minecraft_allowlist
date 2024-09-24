@@ -119,7 +119,7 @@ async def on_ready() -> None:
     print(f'{bot.user} is now running!')
 
 def run_flask_app():
-    app.run(port=5000)
+    app.run(port=5000, debug=False)
 
 def main() -> None:
     from threading import Thread

@@ -1,0 +1,5 @@
+# Defaul to ignore everything
+**/*
+
+# Keep src
+!src/**
