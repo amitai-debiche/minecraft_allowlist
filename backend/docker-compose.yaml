@@ -1,0 +1,35 @@
+services:
+  backend:
+    build: 
+      context: .
+      dockerfile: backend.dockerfile
+    ports:
+      - "5002:8080"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - API_KEY=${API_KEY}
+      - RELEASE_MODE=${RELEASE_MODE}
+    env_file:
+      - .env
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER=${DB_USER}
+      POSTGRES_PASSWORD=${DB_PASSWORD}
+      POSTGRES_DB=${DB_NAME}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    env_file:
+      - .env
+
+volumes:
+  db_data

@@ -12,7 +12,6 @@ import (
 
 	"github.com/gin-gonic/gin"
     "github.com/gin-contrib/cors"
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
@@ -247,11 +246,6 @@ func sendAllowlistRequest(username string) error {
 }
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Printf("Error loading .env file")
-		return
-	}
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
 	user := os.Getenv("DB_USER")
@@ -262,6 +256,7 @@ func main() {
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 
+    var err error
 	db, err = sql.Open("postgres", psqlInfo)
 	if err != nil {
 		panic(err)
