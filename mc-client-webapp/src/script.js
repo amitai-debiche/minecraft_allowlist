@@ -24,7 +24,6 @@ document.addEventListener("DOMContentLoaded", function() {
        fetch("http://localhost:5002/checkUsername", {
            method: 'POST',
            headers: {
-               'Authorization': `Bearer test`,
                'Content-Type': 'application/json',
            },
            body: JSON.stringify({username: username})
@@ -60,7 +59,6 @@ document.addEventListener("DOMContentLoaded", function() {
             fetch("http://localhost:5002/newUserRequest", {
                 method: 'POST',
                 headers: {
-                   'Authorization': `Bearer test`,
                    'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: new URLSearchParams(formData).toString()
