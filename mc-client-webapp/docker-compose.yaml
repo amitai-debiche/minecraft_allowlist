@@ -1,0 +1,7 @@
+services:
+  minecraft_the_styx:
+    build:
+      context: .
+      dockerfile: client.Dockerfile
+    ports:
+      - "5001:80"
