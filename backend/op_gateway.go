@@ -285,8 +285,8 @@ func main() {
         MaxAge: 12 * time.Hour,
     }))
 
-	r.POST("/newUserRequest", apiKeyMiddleware(), handleNewUserRequest)
-	r.POST("/checkUsername", apiKeyMiddleware(), handleUserValidation)
+	r.POST("/newUserRequest", handleNewUserRequest)
+	r.POST("/checkUsername", handleUserValidation)
 	r.POST("/approveUsername", apiKeyMiddleware(), handleUserApproval)
 	r.Run("0.0.0.0:8080")
 
