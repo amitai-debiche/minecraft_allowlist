@@ -1,0 +1,7 @@
+services:
+  discord_the_styx:
+    build:
+      context: .
+      dockerfile: discordbot.Dockerfile
+    ports:
+      - "5003:5000"
