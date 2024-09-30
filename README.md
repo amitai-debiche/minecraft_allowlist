@@ -3,6 +3,7 @@
 [![grassblock](https://cdn3.emoji.gg/emojis/grassblock.png)](https://emoji.gg/emoji/grassblock)
 -------------------------------------------------------------------------------------------
 This ReadME needs some cleanup but for now some basic guidelines:
+See frontend setup at [https://minecraft.the-styx.net](https://minecraft.the-styx.net)
 
 ## Setup
 Currently setup is a bit annoying as no automated scripts/docker YET
